@@ -1,0 +1,17 @@
+{
+    "name": "xpf0000/php-curl",
+    "description": "php curl frameword",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "xupengfei",
+            "email": "250881478@qq.com"
+        }
+    ],
+    "require": {
+    	"php": ">=5.4.0"
+    },
+    "autoload": {
+        "files":["src/Curl.php"]
+    }
+}
