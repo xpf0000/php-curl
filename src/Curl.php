@@ -69,13 +69,17 @@ class Curl
     {
         curl_setopt($this->ch, CURLOPT_POST, false);
         $url_new = $this->url;
-        $opts = array('http' =>
-            array(
+        $opts = [
+            'http' => [
                 'method' => 'GET',
                 'header' => "Content-type: application/x-www-form-urlencoded\r\n",
                 'timeout' => 15 * 60
-            )
-        );
+            ],
+            'ssl' => [
+                'verify_peer' => false,
+                'verify_peer_name' => false
+            ]
+        ];
         if (!empty($this->header)) {
             $header = "";
             if (is_array($this->header)) {
@@ -126,13 +130,17 @@ class Curl
      */
     public function post($returntype = CURL_RETURN_RAW)
     {
-        $opts = array('http' =>
-            array(
+        $opts = [
+            'http' => [
                 'method' => 'POST',
                 'header' => "Content-type: application/x-www-form-urlencoded\r\n",
                 'timeout' => 15 * 60
-            )
-        );
+            ],
+            'ssl' => [
+                'verify_peer' => false,
+                'verify_peer_name' => false
+            ]
+        ];
         if (!empty($this->header)) {
             $header = "";
             if (is_array($this->header)) {
