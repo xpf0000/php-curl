@@ -173,14 +173,8 @@ class Curl
         }
 
         $res=mb_convert_encoding($res, 'UTF-8', 'UTF-8,GBK,GB2312,BIG5');
-        if($returntype === CURL_RETURN_RAW)
-        {
-            return $res;
-        }
-        else
-        {
-            return json_decode($res,true);
-        }
+
+        return $returntype === CURL_RETURN_RAW ? $res : json_decode($res,true);
     }
 
     /**
@@ -255,15 +249,26 @@ class Curl
         }
 
         $res=mb_convert_encoding($res, 'UTF-8', 'UTF-8,GBK,GB2312,BIG5');
-        if($returntype === CURL_RETURN_RAW)
-        {
-            return $res;
-        }
-        else
-        {
-            return json_decode($res,true);
-        }
 
+        return $returntype === CURL_RETURN_RAW ? $res : json_decode($res,true);
+    }
+
+    /** 文件上传方法
+     * @param int $returntype 返回类型 CURL_RETURN_RAW string | CURL_RETURN_JSON json对象
+     * @return bool|mixed|string
+     */
+    public function upload($returntype = CURL_RETURN_RAW){
+        curl_setopt($this->ch, CURLOPT_POST, true);
+        if(!empty($this->d)) {
+            curl_setopt($this->ch, CURLOPT_POSTFIELDS, $this->d);
+        }
+        $cont=curl_exec($this->ch);
+        curl_close($this->ch);
+        $res = $cont;
+
+        $res=mb_convert_encoding($res, 'UTF-8', 'UTF-8,GBK,GB2312,BIG5');
+
+        return $returntype === CURL_RETURN_RAW ? $res : json_decode($res,true);
     }
 
 }
