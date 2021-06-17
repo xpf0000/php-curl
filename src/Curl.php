@@ -86,6 +86,10 @@ class Curl
             } else {
                 $res = file_get_contents($url_new, false, stream_context_create($opts));
             }
+        } else {
+            if ($this->rangeEnd > 0 && $this->rangeEnd > $this->rangeStart) {
+                curl_setopt($this->ch, CURLOPT_RANGE, "{$this->rangeStart}-{$this->rangeEnd}");
+            }
         }
         if($res === false)
         {
@@ -159,10 +163,13 @@ class Curl
         if (!$this->curlOnly) {
             $context = stream_context_create($opts);
             if ($this->rangeEnd > 0 && $this->rangeEnd > $this->rangeStart) {
-                curl_setopt($this->ch, CURLOPT_RANGE, "{$this->rangeStart}-{$this->rangeEnd}");
                 $res = file_get_contents($url_new, false, $context, $this->rangeStart, $this->rangeEnd);
             } else {
                 $res = file_get_contents($url_new, false, $context);
+            }
+        } else {
+            if ($this->rangeEnd > 0 && $this->rangeEnd > $this->rangeStart) {
+                curl_setopt($this->ch, CURLOPT_RANGE, "{$this->rangeStart}-{$this->rangeEnd}");
             }
         }
         if($res === false)
@@ -235,10 +242,13 @@ class Curl
         if (!$this->curlOnly) {
             $context = stream_context_create($opts);
             if ($this->rangeEnd > 0 && $this->rangeEnd > $this->rangeStart) {
-                curl_setopt($this->ch, CURLOPT_RANGE, "{$this->rangeStart}-{$this->rangeEnd}");
                 $res = file_get_contents($this->u, false, $context, $this->rangeStart, $this->rangeEnd);
             } else {
                 $res = file_get_contents($this->u, false, $context);
+            }
+        } else {
+            if ($this->rangeEnd > 0 && $this->rangeEnd > $this->rangeStart) {
+                curl_setopt($this->ch, CURLOPT_RANGE, "{$this->rangeStart}-{$this->rangeEnd}");
             }
         }
         if($res === false)
