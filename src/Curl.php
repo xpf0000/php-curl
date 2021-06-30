@@ -7,6 +7,7 @@ class Curl
     protected $ch = null;
     protected $d = null;
     protected $h = null;
+    protected $f = null;
     protected $timeout = 60;
     protected $rangeStart = 0;
     protected $rangeEnd = 0;
@@ -50,6 +51,21 @@ class Curl
 
     public function data($data){
         $this->d = $data;
+        return $this;
+    }
+
+    /**
+     * @param $file [
+     * "upload"=>[
+     *  "name"=>"",
+     *  "type"=>"",
+     *  "file"=>"",
+     * ]
+     * ]
+     * @return $this
+     */
+    public function formFile($file){
+        $this->f = $file;
         return $this;
     }
 
@@ -272,6 +288,46 @@ class Curl
         if(!empty($this->d)) {
             curl_setopt($this->ch, CURLOPT_POSTFIELDS, $this->d);
         }
+        $cont=curl_exec($this->ch);
+        curl_close($this->ch);
+        $res = $cont;
+
+        $res=mb_convert_encoding($res, 'UTF-8', 'UTF-8,GBK,GB2312,BIG5');
+
+        return $returntype === CURL_RETURN_RAW ? $res : json_decode($res,true);
+    }
+
+    /** 模拟post提交 可以自定义 文件名称和文件的Content-Type 方便测试上传漏洞
+     * @param int $returntype
+     * @return mixed|string
+     */
+    public function formUpload($returntype = CURL_RETURN_RAW) {
+        $delimiter = uniqid();
+        $data = '';
+        if (!empty($this->d)) {
+            foreach ($this->d as $name => $content) {
+                $data .= "--" . $delimiter . "\r\n"
+                    . 'Content-Disposition: form-data; name="' . $name . "\"\r\n\r\n"
+                    . $content . "\r\n";
+            }
+        }
+        if (!empty($this->f)) {
+            foreach ($this->f as $name => $file) {
+                $fileData = is_string($file['file']) ? file_get_contents($file['file']) : $file['file'];
+                $data .= "--" . $delimiter . "\r\n"
+                    . 'Content-Disposition: form-data; name="'.$name.'"; filename="' . $file['name'] . '"' . "\r\n"
+                    . 'Content-Type:'.$file['type']."\r\n\r\n";
+                $data .= $fileData . "\r\n";
+            }
+        }
+        $data .= "--" . $delimiter . "--\r\n";
+
+        curl_setopt($this->ch, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($this->ch, CURLOPT_HTTPHEADER, [
+            "Content-Type: multipart/form-data; boundary=" . $delimiter,
+            "Content-Length: " . strlen($data)
+        ]);
+
         $cont=curl_exec($this->ch);
         curl_close($this->ch);
         $res = $cont;
